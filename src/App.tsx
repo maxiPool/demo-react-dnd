@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 const App: React.FC = () => {
-  const [inactiveItems, setInactiveItems] = useState<string[]>(['a', 'b', 'c', 'd']);
+  const [inactiveItems, setInactiveItems] = useState<string[]>(['option 1', 'option 2', 'option 3', 'option 4']);
   const [activeItems, setActiveItems] = useState<string[]>([]);
 
   const onDragEnd = (result: DropResult): void => {
@@ -57,29 +57,29 @@ const App: React.FC = () => {
   };
 
   return (
+    <div style={{width: "600px", padding: "28px"}}>
     <DragDropContext onDragEnd={onDragEnd}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px' }}>
+      <div>
+
+        <h2>Inactive</h2>
         <Droppable droppableId="inactive">
           {(provided) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              style={{ minHeight: '100px', border: '1px solid black', width: '45%' }}
+              style={{minHeight: '120px', width: '100px', border: '1px solid black', padding: "8px 28px"}}
             >
-              <h2>Inactive</h2>
               {inactiveItems.map((item, index) => (
-                <Draggable key={generateKey(item, index, inactiveItems)} draggableId={generateKey(item, index, inactiveItems)} index={index}>
-                  {(provided, snapshot) => (
+                <Draggable key={generateKey(item, index, inactiveItems)}
+                           draggableId={generateKey(item, index, inactiveItems)} index={index}>
+                  {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       style={{
                         userSelect: 'none',
-                        padding: '8px',
-                        margin: '4px',
-                        backgroundColor: snapshot.isDragging ? '#e0e0e0' : '#6c3636',
-                        border: '1px solid lightgray',
+                        margin: '2px',
                         ...provided.draggableProps.style,
                       }}
                     >
@@ -93,27 +93,25 @@ const App: React.FC = () => {
           )}
         </Droppable>
 
+        <h2>Active</h2>
         <Droppable droppableId="active">
           {(provided) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              style={{ minHeight: '100px', border: '1px solid black', width: '45%' }}
+              style={{minHeight: '120px', width: '100px', border: '1px solid black', padding: "8px 28px"}}
             >
-              <h2>Active</h2>
               {activeItems.map((item, index) => (
-                <Draggable key={generateKey(item, index, activeItems)} draggableId={generateKey(item, index, activeItems)} index={index}>
-                  {(provided, snapshot) => (
+                <Draggable key={generateKey(item, index, activeItems)}
+                           draggableId={generateKey(item, index, activeItems)} index={index}>
+                  {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       style={{
                         userSelect: 'none',
-                        padding: '8px',
-                        margin: '4px',
-                        backgroundColor: snapshot.isDragging ? '#e0e0e0' : '#7c4848',
-                        border: '1px solid lightgray',
+                        margin: '2px',
                         ...provided.draggableProps.style,
                       }}
                     >
@@ -128,6 +126,7 @@ const App: React.FC = () => {
         </Droppable>
       </div>
     </DragDropContext>
+    </div>
   );
 };
 
