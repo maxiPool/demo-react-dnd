@@ -9,25 +9,51 @@ const App: React.FC = () => {
   const onDragEnd = (result: DropResult): void => {
     const { source, destination } = result;
 
-    if (!destination) return;
+    // If the destination is null (dropped outside the list) or dropped in the same place
+    if (!destination || (source.droppableId === destination.droppableId && source.index === destination.index)) {
+      return;
+    }
 
-    let sourceItems = source.droppableId === 'inactive' ? [...inactiveItems] : [...activeItems];
-    let destinationItems = destination.droppableId === 'inactive' ? [...inactiveItems] : [...activeItems];
+    // Function to reorder items within the same list
+    const reorder = (list: string[], startIndex: number, endIndex: number): string[] => {
+      const result = Array.from(list);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return result;
+    };
+
+    // Handle reordering within the same list
+    if (source.droppableId === destination.droppableId) {
+      const items = source.droppableId === 'inactive' ? [...inactiveItems] : [...activeItems];
+      const reorderedItems = reorder(items, source.index, destination.index);
+
+      if (source.droppableId === 'inactive') {
+        setInactiveItems(reorderedItems);
+      } else {
+        setActiveItems(reorderedItems);
+      }
+
+      return;
+    }
+
+    // Handle moving items between different lists
+    const sourceItems = source.droppableId === 'inactive' ? [...inactiveItems] : [...activeItems];
+    const destinationItems = destination.droppableId === 'inactive' ? [...inactiveItems] : [...activeItems];
 
     const [removed] = sourceItems.splice(source.index, 1);
     destinationItems.splice(destination.index, 0, removed);
 
     if (source.droppableId === 'inactive') {
       setInactiveItems(sourceItems);
+      setActiveItems(destinationItems);
     } else {
+      setInactiveItems(destinationItems);
       setActiveItems(sourceItems);
     }
+  };
 
-    if (destination.droppableId === 'inactive') {
-      setInactiveItems(destinationItems);
-    } else {
-      setActiveItems(destinationItems);
-    }
+  const generateKey = (item: string, index: number, list: string[]) => {
+    return `${item}-${list === inactiveItems ? 'inactive' : 'active'}-${index}`;
   };
 
   return (
@@ -42,8 +68,8 @@ const App: React.FC = () => {
             >
               <h2>Inactive</h2>
               {inactiveItems.map((item, index) => (
-                <Draggable key={item} draggableId={item} index={index}>
-                  {(provided) => (
+                <Draggable key={generateKey(item, index, inactiveItems)} draggableId={generateKey(item, index, inactiveItems)} index={index}>
+                  {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
@@ -52,7 +78,7 @@ const App: React.FC = () => {
                         userSelect: 'none',
                         padding: '8px',
                         margin: '4px',
-                        backgroundColor: '#fff',
+                        backgroundColor: snapshot.isDragging ? '#e0e0e0' : '#6c3636',
                         border: '1px solid lightgray',
                         ...provided.draggableProps.style,
                       }}
@@ -76,8 +102,8 @@ const App: React.FC = () => {
             >
               <h2>Active</h2>
               {activeItems.map((item, index) => (
-                <Draggable key={item} draggableId={item} index={index}>
-                  {(provided) => (
+                <Draggable key={generateKey(item, index, activeItems)} draggableId={generateKey(item, index, activeItems)} index={index}>
+                  {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
@@ -86,7 +112,7 @@ const App: React.FC = () => {
                         userSelect: 'none',
                         padding: '8px',
                         margin: '4px',
-                        backgroundColor: '#fff',
+                        backgroundColor: snapshot.isDragging ? '#e0e0e0' : '#7c4848',
                         border: '1px solid lightgray',
                         ...provided.draggableProps.style,
                       }}
